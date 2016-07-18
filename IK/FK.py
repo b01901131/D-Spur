@@ -8,16 +8,17 @@ th_zero = [0, 90, -90, 0, 180, -180]
 L  = [10.0, 105.0, 25.0, 110.0, 30.0, 150.0]
 
 #th = [-10, -27, 47, 63, -20, 5]
-th = [0,20,0,90,0,90]
-#dest = [10, -355, 60, 0, 0, 0]
-dest = [  15.23108,      19.98846,     416.15625 ,    -17.1167058,    11.61764334,
-   53.11618079]
-#dest = [15,      19,     416,     -17,    11,  53] 
-
+th = [0,-20,0,30,0,90]
+#th = [ -96,  -75,  -34,  -27,   21,  206]
+#th = [ -96.07351766,  -74.89197776,  -34.13323947,  -27.17642705,   21.20637644, 205.58019537]
+#th = [0,0,0,0,0,0]
+#dest = [10, -355, 60, 10, -365, 60]
+#dest = [15, 0, 430, 15, 0 ,440, 25, 0, 430]
+dest = [ -200, 0, 200, -210, 0, 200, -200, 10, 200]
 
 def FK(th):
 
-	time_st = time.time()
+	#time_st = time.time()
 	local_th = list(th)
 	for i in range(len(local_th)):
 		local_th[i] = deg_to_rad(local_th[i]+th_zero[i])
@@ -60,70 +61,20 @@ def FK(th):
 			[0.0,           0.0,             1.0,               L[5]],
 			[0.0,           0.0,             0.0,                1.0]
 		 ]
+	Tb = [  [    			1.0,           0.0,             0.0,  				 10.0],
+			[    			0.0,           1.0,             0.0,  				  0.0],
+			[    			0.0,           0.0,             1.0,  				 65.0],
+			[               0.0,           0.0,             0.0,                  1.0]
+		 ]
 
 
-	T = np.dot(np.dot(np.dot(T0,T1),np.dot(T2,T3)),np.dot(T4,T5))
-	for i in range(4):
-		for j in range(4):
-			T[i][j] = round(T[i][j],5)
+	T = np.dot( np.dot( np.dot(Tb,T0),np.dot(T1,T2) ),np.dot( np.dot(T3,T4), T5) )
+	front = np.dot(T,[[0],[0],[10],[1]])
+	right = np.dot(T,[[10],[0],[0],[1]])
 
-	roll = np.arctan2(T[2][1],T[2][2]) #* 180/np.pi
-	pitch = np.arctan2(-T[2][0],np.sqrt(T[2][1]**2+T[2][2]**2)) #* 180/np.pi
-	yaw = np.arctan2(T[1][0],T[0][0]) #* 180/np.pi
-
-
-	if round(np.cos(pitch),5) == 0:
-
-		yaw = deg_to_rad(th[5] + th[4] + th[0]) #* 180/np.pi
-
-		if round(np.sin(yaw),5) == 0:
-			pitch = np.arctan2(-T[2][0],T[2][2]/np.cos(yaw))
-		else:
-			pitch = np.arctan2(-T[2][0],T[2][1]/np.sin(yaw)) #* 180/np.pi
-
-		if not round(np.cos(pitch),5) == 0:
-			roll = np.arctan2(T[2][1]/np.cos(pitch),T[2][2]/np.cos(pitch)) #* 180/np.pi
-		elif np.sin(pitch)>0:
-			roll = yaw - np.arctan2(T[1][2],T[1][1])
-		else:
-			roll = np.arctan2(-T[1][2],T[1][1]) - yaw
-
-
-
-
-	#print pose
-
-	Tr =  	[  	[            1.0,            0.0,            0.0,            0.0],
-				[            0.0,   np.cos(roll),  -np.sin(roll),            0.0],
-				[            0.0,   np.sin(roll),   np.cos(roll),            0.0],
-				[            0.0,            0.0,            0.0,            1.0],
-			]
-	Tp =  	[  	[  np.cos(pitch),            0.0,  np.sin(pitch),            0.0],
-				[            0.0,            1.0,            0.0,            0.0],
-				[ -np.sin(pitch),            0.0,  np.cos(pitch),            0.0],
-				[            0.0,            0.0,            0.0,            1.0],
-			]			
-	Ty =  	[  	[    np.cos(yaw),   -np.sin(yaw),            0.0,            0.0],
-				[    np.sin(yaw),    np.cos(yaw),            0.0,            0.0],
-				[            0.0,            0.0,            1.0,            0.0],
-				[            0.0,            0.0,            0.0,            1.0],
-			]
-	Tt =  	[  	[            1.0,            0.0,            0.0,        T[0][3]],
-				[            0.0,            1.0,            0.0,        T[1][3]],
-				[            0.0,            0.0,            1.0,        T[2][3]],
-				[            0.0,            0.0,            0.0,            1.0],
-			]
-	#print "Pose\t",np.dot(T,[0,0,0,1])[:-1]
-	#print "Time:\t %.4f s" % (time.time()-time_st)
-
-	#print T , '\n'
-	#print pose[0],pose[1],pose[2]
-	Ttest = np.dot(np.dot(Tt,Ty),np.dot(Tp,Tr))
-	for i in range(4):
-		for j in range(4):
-			Ttest[i][j] = round(Ttest[i][j],5)
-	#print abs(Ttest - T)<0.001
-	pose = np.array([ T[0][3]+10, T[1][3], T[2][3]+65, rad_to_deg(roll), rad_to_deg(pitch), rad_to_deg(yaw) ]) # x,y,z,roll,pitch,yaw
+	pose = np.array([ T[0][3], T[1][3], T[2][3], front[0], front[1], front[2], right[0], right[1], right[2] ]) # x,y,z,roll,pitch,yaw
+	#for i in range(len(pose)):
+	#	pose[i] = round(pose[i],5)
 	return pose
 
 
@@ -135,13 +86,16 @@ def deg_to_rad(deg):
 	return deg/180.0*np.pi
 
 def IK(curr_th, dest):
+	time_st = time.time()
 	curr = FK(curr_th)
 	d = dist(dest,curr)
+	mini = d
+	th_mini = curr_th
 	#print curr
-	while d > 10:
+	while d > 0.05 and time.time() - time_st < 3:
 		d_x = dest - curr
 	
-		d_x = np.divide(d_x,dist(d_x))*1.6
+		d_x = np.divide(d_x,dist(d_x))
 
 		d_q = np.dot(inverse_jac(curr_th),d_x)
 		
@@ -158,6 +112,9 @@ def IK(curr_th, dest):
 		#print curr_th#,dist(dest,curr)
 		#print curr
 		d = dist(dest,curr)
+		if d < mini:
+			mini = d
+			th_mini = curr_th
 		print d
 		#print "////////////////////////////"
 	
@@ -171,25 +128,19 @@ def IK(curr_th, dest):
 	print curr
 	print dist(dest,curr) 
 
-def dist(curr,dest = [0,0,0,0,0,0]):
+def dist(curr,dest = [0,0,0,0,0,0,0,0,0]):
 	summary = 0.0
-	for i in range(6):
+	for i in range(9):
 		summary += (curr[i]-dest[i])**2
 	return np.sqrt(summary)
 	
 def inverse_jac(th_in):
 
 	#print '\n'
-	delta = 0.01
+	delta = 0.001
 	current = FK(th_in)
 	jac = []
-	Ti =  	[  	[            1.0,            0.0,            0.0,       	 0.0,       	 0.0,       	 0.0],
-				[            0.0,            1.0,            0.0,        	 0.0,       	 0.0,       	 0.0],
-				[            0.0,            0.0,            1.0,        	 0.0,       	 0.0,       	 0.0],
-				[            0.0,            0.0,            0.0,            1.0,       	 0.0,       	 0.0],
-				[            0.0,            0.0,            0.0,            0.0,       	 1.0,       	 0.0],
-				[            0.0,            0.0,            0.0,            0.0,       	 0.0,       	 1.0],
-			]
+	
 	for i in range(len(th_in)):
 		new_th = list(th_in)
 		new_th[i] += delta
@@ -202,9 +153,8 @@ def inverse_jac(th_in):
 
 		#raw_input()
 
-	jac = np.dot(jac,Ti)
 	jac = np.transpose(jac)
-	
+	#print jac	
 	#print jac
 	in_jac = np.dot( np.linalg.inv( np.dot(np.transpose(jac),jac) ),np.transpose(jac) )
 	#print in_jac
