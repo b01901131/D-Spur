@@ -27,9 +27,9 @@ int main( int argc, char** argv )
     // }
 
     
-    img = imread("../img/cifar2.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
-    cout << img.cols/2 <<" , "<<img.rows/2<<endl;
-    cv::resize( img, img, cv::Size(img.cols / 2, img.rows / 2) );
+    img = imread("../img/cifar3.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
+    cout << img.cols/4 <<" , "<<img.rows/4<<endl;
+    cv::resize( img, img, cv::Size(img.cols / 4, img.rows / 4) );
     if(! img.data ){
         cout <<  "Could not open or find the image" << std::endl ;
         return -1;
@@ -84,7 +84,7 @@ int main( int argc, char** argv )
     	bool cont = false;
     	for(int m=0; m<n; m++){
     		double dist = cv::norm(approx[n]-approx[m]);
-    		if (dist < 3){ //ignore points that are close with eachother
+    		if (dist < 10){ //ignore points that are close with eachother
     			cont = true;
     			break;
     		}
@@ -94,11 +94,12 @@ int main( int argc, char** argv )
     	else{
     		circle(drawing, approx[n], 2, Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255)), 2 );
     		square.push_back(approx[n]);		
+    		imshow("draw",drawing);
+    		waitKey(0);
     	}
     		
     }
-    //imshow("draw",drawing);
-    //waitKey(0);
+    
    
 
    	/*Draw boundary*/
@@ -122,8 +123,9 @@ int main( int argc, char** argv )
     vector<Point2f> dst;
     dst.push_back(Point2f(0, 0));
     dst.push_back(Point2f(511, 0));
-    dst.push_back(Point2f(0, 511));
     dst.push_back(Point2f(511, 511));
+    dst.push_back(Point2f(0, 511));
+    
 
     Mat h = findHomography(square2f, dst, 0);
     cout <<"H"<<h<<endl;
