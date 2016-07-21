@@ -1,3 +1,4 @@
+#include <Python2.7/Python.h>
 #include <VarSpeedServo.h>
 // s0: shoulder(yaw)
 // s1: shoulder(pitch)
@@ -12,7 +13,11 @@ struct ServoInfo {
 class robotArm {
   public:
     //Full constructor uses calibration data, or can just give pins
-    robotArm();
+    robotArm(){
+        Py_Initialize();
+        PyRun_SimpleString("import sys; sys.path.append('.')");
+        PyRun_SimpleString("import FK;");
+    };
     //required before running
     void begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5);  
     void reset();
@@ -44,7 +49,7 @@ class robotArm {
     //void polarToCartesian(float theta, float r, float& x, float& y);
     float _x, _y, _z;
     float _r, _t;
-    VarSpeedServo s0, s1, s2, s3, s4, s5;
-    ServoInfo s0_info, s1_info, s2_info, s3_info, s4_info, s5_info ;
-    int pin_s0, pin_s1, pin_s2, pin_s3, pin_s4, pin_s5;
+    VarSpeedServo s0, s1, s2, s3, s4, s5, s6;
+    ServoInfo s0_info, s1_info, s2_info, s3_info, s4_info, s5_info, s6_info ;
+    int pin_s0, pin_s1, pin_s2, pin_s3, pin_s4, pin_s5, pin_s6;
 };

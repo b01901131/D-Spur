@@ -133,7 +133,12 @@ def IK(curr_th, dest):
 	curr = FK(th_mini)
 	print th_mini#,dist(dest,curr)
 	print curr
+<<<<<<< HEAD
 	print dist(dest,curr)
+=======
+	print dist(dest,curr) 
+	return curr_th
+>>>>>>> 91522897adf4e24b7a45a7b6dd1a49ea77a2b4d4
 
 def dist(curr,dest = [0,0,0,0,0,0,0,0,0]):
 	summary = 0.0
@@ -168,6 +173,6 @@ def inverse_jac(th_in):
 	#return np.linalg.inv(jac)
 	return in_jac
 
-IK(th,dest)
+#IK(th,dest)
 #print FK(th)
 
