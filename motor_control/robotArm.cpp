@@ -45,7 +45,7 @@ void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4,
 
 void robotArm::reset(){
   delay(1000);
-  s0.write(30,127,true);
+  s0.write(90,127,true);
   s1.write(88,127,true);
   s2.write(82,127,true);
   s3.write(127,127,true); 
