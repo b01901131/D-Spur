@@ -5,7 +5,7 @@ import time
 
 
 th_zero = [0, 90, -90, 0, 180, -180]
-L  = [10.0, 105.0, 25.0, 110.0, 30.0, 150.0]
+L  = [10.0, 105.0, 25.0, 110.0, 25.0, 150.0]
 
 #th = [-10, -27, 47, 63, -20, 5]
 th = [0,-20,0,30,0,90]
@@ -61,7 +61,7 @@ def FK(th):
 			[0.0,           0.0,             1.0,               L[5]],
 			[0.0,           0.0,             0.0,                1.0]
 		 ]
-	Tb = [  [    			1.0,           0.0,             0.0,  				 10.0],
+	Tb = [  [    			1.0,           0.0,             0.0,  				-10.0],
 			[    			0.0,           1.0,             0.0,  				  0.0],
 			[    			0.0,           0.0,             1.0,  				 65.0],
 			[               0.0,           0.0,             0.0,                  1.0]
@@ -127,6 +127,7 @@ def IK(curr_th, dest):
 	print curr_th#,dist(dest,curr)
 	print curr
 	print dist(dest,curr) 
+	return curr_th
 
 def dist(curr,dest = [0,0,0,0,0,0,0,0,0]):
 	summary = 0.0
@@ -161,6 +162,6 @@ def inverse_jac(th_in):
 	#return np.linalg.inv(jac)
 	return in_jac
 
-IK(th,dest)
+#IK(th,dest)
 #print FK(th)
 
