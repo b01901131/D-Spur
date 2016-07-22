@@ -15,6 +15,16 @@ void setup_servo (ServoInfo& svo, const int n_min, const int n_max)
     svo.max = n_max;
 }
 
+void cmdGo(VarSpeedServo& s, ServoInfo& svo, int cmd, int speed, bool wait){
+  int max = svo.max;
+  int min = svo.min;
+  if(cmd > max)
+    cmd = max;
+  else if(cmd < min)
+    cmd = min;
+  s.write(cmd, speed, wait);
+}
+
 int angle2cmd (const ServoInfo& svo, const float angle, const int curr_cmd)
 {
     float new_cmd = curr_cmd + angle;
@@ -22,16 +32,16 @@ int angle2cmd (const ServoInfo& svo, const float angle, const int curr_cmd)
 }
 
 robotArm::robotArm() {
-  setup_servo(s0_info, 0, 180);
-  setup_servo(s1_info, 0, 180);
-  setup_servo(s2_info, 0, 180);
-  setup_servo(s3_info, 0, 180); //watch out this one(not sure whether it will stuck or not)
-  setup_servo(s4_info, 0, 180);
-  setup_servo(s5_info, 0, 180); //gripper constraint
+  setup_servo(s0_info, 25, 155);
+  setup_servo(s1_info, 23, 153);
+  setup_servo(s2_info, 27, 155);
+  setup_servo(s3_info, 25, 155); 
+  setup_servo(s4_info, 25, 110);
+  setup_servo(s5_info, 23, 152); //gripper constraint
   setup_servo(s6_info,60, 105);
 }
 
-void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5) {
+void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5, int pin_s6) {
   s0.attach(pin_s0);
   s1.attach(pin_s1);
   s2.attach(pin_s2);
@@ -46,32 +56,39 @@ void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4,
 
 void robotArm::reset(){
   delay(1000);
+  // 25 - 90 - 155
   s0.write(90,127,true);
-  s1.write(88,127,true);
+  // 23 - 85 - 153
+  s1.write(85,127,true);
+  // 27 - 93 - 155
   s2.write(93,127,true);
+  // 25 - 90 - 155
   s3.write(90,127,true); 
-  s4.write(90,127,true); 
-  
-  s4.write(0,127,false);  // not tested yet (wrist)
-  s5.write(60,127,false); // not tested yet (gripper)
-  
-  //delay(1000);
-  //s0.write(90,255,true);
-  //delay(1000);
-  //s3.write(40,30,true);
-  //delay(1000);
-  //s2.write(100,45,true);
-  //delay(1000);
-  //s0.write(30,127,false);
-  //s2.write(82,127,false);
-  //s3.write(127,127,true);
+  // 25 - 90 - 110 (metal will stuck)
+  s4.write(90,127,true);
+  // 23 - 90 - 152
+  s5.write(90,127,false);  
+  // 25 - 50
+  s6.write(50,127,false); // not tested yet (gripper)
+}
+
+void robotArm::goTo(int cmd[7]){
+  cmdGo(s0, s0_info, cmd[0]+90, 127, true);
+  cmdGo(s1, s1_info,-cmd[1]+88, 127, true);
+  cmdGo(s2, s2_info, cmd[2]+93, 127, true);
+  cmdGo(s3, s3_info, cmd[3]+90, 127, true);
+  cmdGo(s4, s4_info, cmd[4]+90, 127, true);
+  cmdGo(s5, s5_info, cmd[5]+90, 127, true);
+  //s0.write(cmd[0]+90, 127, true);
+  //s1.write(-cmd[1]+88, 127, true);
+  //s2.write(cmd[2]+93, 127, true);
+  //s3.write(cmd[3]+90, 127, true);
+  //s4.write(cmd[4]+90, 127, true);
+  //s5.write(cmd[5]+90, 127, true);
 }
 //Set servos to reach a certain point directly without caring how we get there 
 void robotArm::goDirectlyTo(float x, float y, float z) {
   float cmd_0, cmd_1, cmd_2, cmd_3, cmd_4;
-  cmd_0, cmd_1, cmd_2 = s0.read(), s1.read(), s2.read();
-  cmd_3, cmd_4, cmd_5 = s3.read(), s4.read(), s5.read();
-  PyRun_SimpleString(command);
     
   //if (solve(x, y, z, cmd_0, cmd_1, cmd_2, cmd_3, cmd_4)) {
   //  s0.write(angle2cmd(s0_info, cmd_0, s0.read()));
@@ -128,13 +145,13 @@ bool robotArm::isReachable(float x, float y, float z) {
 
 //Grab something
 void robotArm::openGripper() {
-  s5.write(60, 90, true);
+  s5.write(25, 90, true);
   //delay(300);
 }
 
 //Let go of something
 void robotArm::closeGripper() {
-  s5.write(105, 90, true);
+  s5.write(50, 90, true);
   //delay(300);
 }
 
