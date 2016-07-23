@@ -175,6 +175,6 @@ def inverse_jac(th_in):
 	#return np.linalg.inv(jac)
 	return in_jac
 
-IK(th,dest)
+#IK(th,dest)
 #print FK(th)
 

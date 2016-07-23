@@ -1,4 +1,3 @@
-#include <Python2.7/Python.h>
 #include <VarSpeedServo.h>
 // s0: shoulder(yaw)
 // s1: shoulder(pitch)
@@ -13,14 +12,13 @@ struct ServoInfo {
 class robotArm {
   public:
     //Full constructor uses calibration data, or can just give pins
-    robotArm(){
-        Py_Initialize();
-        PyRun_SimpleString("import sys; sys.path.append('.')");
-        PyRun_SimpleString("import FK;");
-    };
+    robotArm();
     //required before running
-    void begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5);  
+    void begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5, int pin_s6);  
     void reset();
+
+    void goTo(int cmd[7]);
+
     //Travel smoothly from current point to another point
     void gotoPoint(float x, float y, float z);
     
