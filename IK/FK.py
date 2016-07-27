@@ -115,8 +115,8 @@ def IK(curr_th, dest):
 		if d < mini:
 			mini = d
 			th_mini = curr_th
-		print d
-		#print "////////////////////////////"
+		#print d
+			#print "////////////////////////////"
 	
 
 	for i in range(6):
@@ -124,9 +124,10 @@ def IK(curr_th, dest):
 		while not curr_th[i] in range(-180,180):
 			curr_th[i] -= np.sign(curr_th[i])*360
 	curr = FK(curr_th)
-	print curr_th#,dist(dest,curr)
-	print curr
-	print dist(dest,curr) 
+	#print curr_th#,dist(dest,curr)
+	#print curr
+	#print dist(dest,curr) 
+	return curr_th
 
 def dist(curr,dest = [0,0,0,0,0,0,0,0,0]):
 	summary = 0.0
@@ -161,6 +162,6 @@ def inverse_jac(th_in):
 	#return np.linalg.inv(jac)
 	return in_jac
 
-IK(th,dest)
+#IK(th,dest)
 #print FK(th)
 
