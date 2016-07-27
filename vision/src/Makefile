@@ -1,11 +1,11 @@
 all: test
 
-CFLAGS=-fPIC -g -Wall `pkg-config --cflags opencv`
+CFLAGS=-fPIC -g `pkg-config --cflags opencv`
 LIBS = `pkg-config --libs opencv`
 #INCLUDE = -I/usr/local/include/libfreenect
 #FREE_LIBS = -L/usr/local/lib -lfreenect
 
-test:  third.cpp
+test:  second.cpp
 	$(CXX) $(CFLAGS) $? -o $@  $(LIBS)
 
 %.o: %.cpp

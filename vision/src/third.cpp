@@ -8,7 +8,7 @@ using namespace std;
 
 int lo_diff = 1;
 int up_diff = 5;
-int th =170;
+int th =170; 
 int mode = 2;
 Mat img, img_2,img_3,img_4, img_hsv,img_grey,img_grey2, img_thresh,img_canny;
 Rect ccomp;
@@ -27,7 +27,7 @@ int main( int argc, char** argv )
     // }
 
     
-    img = imread("../img/cifar3.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
+    img = imread("../img/cifar2.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
     cout << img.cols/4 <<" , "<<img.rows/4<<endl;
     cv::resize( img, img, cv::Size(img.cols / 4, img.rows / 4) );
     if(! img.data ){
@@ -94,8 +94,8 @@ int main( int argc, char** argv )
     	else{
     		circle(drawing, approx[n], 2, Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255)), 2 );
     		square.push_back(approx[n]);		
-    		imshow("draw",drawing);
-    		waitKey(0);
+    		//imshow("draw",drawing);
+    		//waitKey(0);
     	}
     		
     }
@@ -135,21 +135,30 @@ int main( int argc, char** argv )
  	
     // Display images
     imshow("Source Image", img);
-    waitKey(0);
+    //waitKey(0);
     //imshow("Destination Image", tranformed);
     imshow("Warped Source Image", im_out);
     waitKey(0);
-
-
+    Mat im_out_2 = im_out.clone();
+    vector<Rect> crops;
     for(int i=0; i<16; i++){
     	for(int j=0; j<16; j++){
-    		//Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255));
-    		rectangle(im_out, Point(32*i,32*j), Point(32*(i+1),32*(j+1)), Scalar(0,0,255), 2);
-			
+    		rectangle(im_out_2, Point(32*i,32*j), Point(32*(i+1),32*(j+1)), Scalar(0,0,255), 2);
+    		crops.push_back(Rect(32*i,32*j,32,32));			
     	}
     }
-    imshow("Warped Source Image", im_out);
+    imshow("Warped Source Image", im_out_2);
     waitKey(0);    		
+
+    for(int n=0; n<crops.size(); n++){
+    	//Mat src(img);
+    	Mat cropped(Size(32,32),CV_8UC3);// = image(crops[n]);
+    	cropped = im_out(crops[n]).clone();//.copyTo(cropped);
+
+    	
+    	imshow("crop", cropped);
+    	waitKey(0);    		
+    }
 
 
 
