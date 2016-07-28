@@ -8,16 +8,17 @@ th_zero = [0, 90, -90, 0, 180, -180]
 L  = [10.0, 105.0, 25.0, 110.0, 25.0, 150.0]
 
 #th = [-10, -27, 47, 63, -20, 5]
-#th = [0,60,60,0,60,0]
+#th = [0,-20,0,30,0,90]
 #th = [ -96,  -75,  -34,  -27,   21,  206]
+#th = [ -96.07351766,  -74.89197776,  -34.13323947,  -27.17642705,   21.20637644, 205.58019537]
 th = [0,-50,-50,0,-50,0]
-#th = [0,0,0,0,0,0]
-#th = [-10,20,30,40,50,-60]
 #th = [  79, -90,  -41,  -11,   90,  -90]
+#dest = [10, -355, 60, 10, -365, 60]
 #dest = [ 200, 0, 200, 210, 0, 200, 200, 10, 200]
-dest = [  -110,0,-100,     -110,0,-110,     -120,0,-100]
-dest = [	160,0,-120, 160,0,-130, 160,-10,-120]
-#dest = [-240,   45.,  225,  -250,  45, 225, -240,  45,  235]
+x = 160
+y = 100
+z = 0
+dest = [ x,y,z, x,y,z-10, x,y-10,z]
 
 def FK(th):
 
@@ -66,7 +67,7 @@ def FK(th):
 		 ]
 	Tb = [  [    			1.0,           0.0,             0.0,  				-10.0],
 			[    			0.0,           1.0,             0.0,  				  0.0],
-			[    			0.0,           0.0,             1.0,  				 65.0],
+			[    			0.0,           0.0,             1.0,  				 95.0],
 			[               0.0,           0.0,             0.0,                  1.0]
 		 ]
 
@@ -103,15 +104,13 @@ def IK(curr_th, dest):
 		d_q = np.dot(inverse_jac(curr_th),d_x)
 		
 		curr_th += d_q
-		
-		
+
 		for i in range(len(curr_th)):
 			if curr_th[i]>90 :
 				curr_th[i] = 90
 			if curr_th[i]<-90:
 				curr_th[i] = -90
-		
-		
+
 		'''
 		for i in range(6):
 			curr_th[i] = round(curr_th[i],0)
@@ -126,22 +125,6 @@ def IK(curr_th, dest):
 		d = dist(dest,curr)
 		if d < mini:
 			mini = d
-<<<<<<< HEAD
-			th_mini = curr_th
-		#print d
-			#print "////////////////////////////"
-	
-
-	for i in range(6):
-		curr_th[i] = round(curr_th[i],0)
-		while not curr_th[i] in range(-180,180):
-			curr_th[i] -= np.sign(curr_th[i])*360
-	curr = FK(curr_th)
-	#print curr_th#,dist(dest,curr)
-	#print curr
-	#print dist(dest,curr) 
-	return curr_th
-=======
 			th_mini = list(curr_th)
 			#print th_mini
 		print d
@@ -157,7 +140,6 @@ def IK(curr_th, dest):
 	print curr
 	print dist(dest,curr)
 	return th_mini
->>>>>>> 38d72168839cdd1dfd24f681fd9598f5ca72b867
 
 def dist(curr,dest = [0,0,0,0,0,0,0,0,0]):
 	summary = 0.0
@@ -168,7 +150,7 @@ def dist(curr,dest = [0,0,0,0,0,0,0,0,0]):
 def inverse_jac(th_in):
 
 	#print '\n'
-	delta = 0.1
+	delta = 0.001
 	current = FK(th_in)
 	jac = []
 	
@@ -192,6 +174,5 @@ def inverse_jac(th_in):
 	#return np.linalg.inv(jac)
 	return in_jac
 
-#IK(th,dest)
+IK(th,dest)
 #print FK(th)
-
