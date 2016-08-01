@@ -5,7 +5,7 @@ import time
 
 
 th_zero = [0, 90, -90, 0, 180, -180]
-L  = [10.0, 105.0, 25.0, 110.0, 25.0, 150.0]
+L  = [12.0, 105.0, 28.0, 110.0, 28.0, 150.0]
 
 #th = [-10, -27, 47, 63, -20, 5]
 #th = [0,-20,0,30,0,90]
@@ -174,5 +174,5 @@ def inverse_jac(th_in):
 	#return np.linalg.inv(jac)
 	return in_jac
 
-#IK(th,dest)
+#1IK(th,dest)
 #print FK(th)

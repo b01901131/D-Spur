@@ -6,7 +6,8 @@
 // s4: wrist(yaw)
 // s5: gripper
 struct ServoInfo {
-    int min, max;   // hardware limits, should be within range
+    int min, max, init;   // hardware limits, should be within range
+    float scale;
 };
 
 class robotArm {
