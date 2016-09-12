@@ -1,6 +1,6 @@
 
 # We are using 2 arduino boards, Mega and Uno.
-## Mega is serves:
+## Mega serves:
 * 4 mecanum wheels
 * Sonar system
 * i2c communication with TK1
