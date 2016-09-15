@@ -18,10 +18,10 @@ void Gear::genCmd()
 {
   int wait_us[4];
 
-  wait_us[0] = (_w[0] == 0)? (int) (PI * 10000 / (_gear_mode[0] * _w[0])) : 0;
-  wait_us[1] = (_w[0] == 0)? (int) (PI * 10000 / (_gear_mode[1] * _w[1])) : 0;
-  wait_us[2] = (_w[0] == 0)? (int) (PI * 10000 / (_gear_mode[2] * _w[2])) : 0;
-  wait_us[3] = (_w[0] == 0)? (int) (PI * 10000 / (_gear_mode[3] * _w[3])) : 0;
+  wait_us[0] = (_w[0] != 0)? (int) (PI * 10000 / (_gear_mode[0] * _w[0])) : -1;
+  wait_us[1] = (_w[1] != 0)? (int) (PI * 10000 / (_gear_mode[1] * _w[1])) : -1;
+  wait_us[2] = (_w[2] != 0)? (int) (PI * 10000 / (_gear_mode[2] * _w[2])) : -1;
+  wait_us[3] = (_w[3] != 0)? (int) (PI * 10000 / (_gear_mode[3] * _w[3])) : -1;
 
   printf("wait_us[4] : %i, %i, %i, %i\n", wait_us[0],wait_us[1],wait_us[2],wait_us[3]);
   printf("_w[4] : %lf, %lf, %lf, %lf\n", _w[0],_w[1],_w[2],_w[3]);

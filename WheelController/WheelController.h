@@ -1,19 +1,21 @@
 #ifndef WHEEL_CONTROLLER_H
 #define WHEEL_CONTROLLER_H
 
-//#include "I2CBusController.h"
+#include <list>
+#include <inttypes.h>
+
+#include "I2CBusController.h"
 #include "definitions.h"
 #include "Gear.h"
 #include "SerialPortController.h"
-#include <list>
 
 using namespace std;
 
 // Coordinates are relative to robot, not world.
 class WheelController {
   public:
-    //WheelController(I2CBusController* i2c_bus_controller,
-    //                uint8_t sl_addr);
+    WheelController(I2CBusController* i2c_bus_controller,
+                    uint8_t sl_addr);
     WheelController(SerialPortController* serial_port_controller);
     //~WheelController();
 
@@ -35,8 +37,8 @@ class WheelController {
 
     void findGears(double target_w[4]);
     void findReverse(int wheel_idx, double target_w);
-    void findAcceleration(int wheel_idx, double target_w, int shift_time);
-    void findDeceleration(int wheel_idx, double target_w, int shift_time);
+    int findAcceleration(int wheel_idx, double target_w, int shift_time);
+    int findDeceleration(int wheel_idx, double target_w, int shift_time);
     bool existsInShiftQueue(int shift_time, list<Gear>::iterator& it);
     static void alarmHandler(int signum){
         _me->shiftGear();
@@ -52,8 +54,8 @@ class WheelController {
     double _current_w[4];
 
     list<Gear> _shift_queue;
-    //const uint8_t _sl_addr;
-    //I2CBusController* _i2c_bus_controller;
+    uint8_t _sl_addr;
+    I2CBusController* _i2c_bus_controller;
     SerialPortController* _serial_port_controller;
 };
 

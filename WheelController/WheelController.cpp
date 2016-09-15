@@ -5,13 +5,28 @@
 
 WheelController* WheelController::_me;
 
-/*
+
 WheelController::WheelController( I2CBusController* i2c_bus_controller,
                                   uint8_t sl_addr)
 {
+  _i2c_bus_controller = i2c_bus_controller;
+  _sl_addr = sl_addr;
+  _me = this;
 
+  _current_shift_time = 0;
+  _current_gear_mode[0] = 16;
+  _current_gear_mode[1] = 16;
+  _current_gear_mode[2] = 16;
+  _current_gear_mode[3] = 16;
+  _current_w[0] = 0;
+  _current_w[1] = 0;
+  _current_w[2] = 0;
+  _current_w[3] = 0;
+
+  if(DEBUG)
+    printf("Done initializing WheelController (i2c)\n");
 }
-*/
+
 
 WheelController::WheelController(SerialPortController* serial_port_controller)
 {
@@ -29,7 +44,7 @@ WheelController::WheelController(SerialPortController* serial_port_controller)
   _current_w[3] = 0;
 
   if(DEBUG)
-    printf("Done initializing WheelController\n");
+    printf("Done initializing WheelController (serial)\n");
 }
 
 void WheelController::setMotionRect(double vx, double vy, double w0)
@@ -124,6 +139,8 @@ void WheelController::findGears(double target_w[4])
       if(abs(target_w[i]) > abs(_current_w[i])){
         //printf("findGears() : wheel %i acceleration.\n", i);
         findAcceleration(i, target_w[i], 0);
+      } else if(target_w[i] == _current_w[i]){
+        continue;
       } else {
         findDeceleration(i, target_w[i], 0);
       }
@@ -135,16 +152,20 @@ void WheelController::findReverse(int wheel_idx, double target_w)
 {
   int shift_time = 0;
   if(_current_w[wheel_idx] > 0){
-    // from positive to negative.
-    // decelerate to min velocity.
-    findDeceleration(wheel_idx, MIN_ANG_VELOCITY[4], shift_time);
+    if(DEBUG){
+      printf("reverse %i : from positive to negative.\n", wheel_idx);
+      printf("from %lf to %lf.\n", _current_w[wheel_idx], target_w);
+    }
+    shift_time = findDeceleration(wheel_idx, MIN_ANG_VELOCITY[4], shift_time);
     Gear reverse(shift_time);
     reverse._gear_mode[wheel_idx] = _current_gear_mode[wheel_idx];
     reverse._w[wheel_idx] = -1 * MIN_ANG_VELOCITY[4];
+    if(DEBUG)
+      printf("accelerate to target velocity.\n");
     findAcceleration(wheel_idx, target_w, shift_time);
   } else {
     // from negative to postive.
-    findDeceleration(wheel_idx, -1 * MIN_ANG_VELOCITY[4], shift_time);
+    shift_time = findDeceleration(wheel_idx, -1 * MIN_ANG_VELOCITY[4], shift_time);
     Gear reverse(shift_time);
     reverse._gear_mode[wheel_idx] = _current_gear_mode[wheel_idx];
     reverse._w[wheel_idx] = MIN_ANG_VELOCITY[4];
@@ -152,7 +173,7 @@ void WheelController::findReverse(int wheel_idx, double target_w)
   }
 }
 
-void WheelController::findAcceleration(int wheel_idx, double target_w, int shift_time=0)
+int WheelController::findAcceleration(int wheel_idx, double target_w, int shift_time=0)
 {
   list<Gear>::iterator it;
 
@@ -168,7 +189,7 @@ void WheelController::findAcceleration(int wheel_idx, double target_w, int shift
 
   //gear_idx++;
   for (; gear_idx >= 0;){
-    shift_speed = MAX_ANG_VELOCITY[gear_idx];
+    shift_speed = (target_w > 0)? MAX_ANG_VELOCITY[gear_idx] : -MAX_ANG_VELOCITY[gear_idx];
 
     if(DEBUG){
       printf("acceleration : gear_idx = %i\n", gear_idx);
@@ -199,11 +220,10 @@ void WheelController::findAcceleration(int wheel_idx, double target_w, int shift
       
       if(DEBUG)
         printf("end of acceleration\n");
-
       break;
     }
     // needs to shift up. first accelerate to shift speed (1000us) 
-    shift_time +=  ((shift_speed - abs(start_speed)) / ANGULAR_ACCELERATION) + 3000;
+    shift_time +=  ((abs(shift_speed) - abs(start_speed)) / ANGULAR_ACCELERATION) + 3000;
      
     if( !existsInShiftQueue(shift_time, it) ){
       // add a gear if not exist.
@@ -238,11 +258,11 @@ void WheelController::findAcceleration(int wheel_idx, double target_w, int shift
     gear_idx--;
     gear_mode = (1 << gear_idx);
   }
+  return shift_time;
 }
     
-void WheelController::findDeceleration(int wheel_idx, double target_w, int shift_time=0)
+int WheelController::findDeceleration(int wheel_idx, double target_w, int shift_time=0)
 {
-  //int shift_time = 0;
   list<Gear>::iterator it;
 
   int gear_idx = 0;
@@ -256,7 +276,7 @@ void WheelController::findDeceleration(int wheel_idx, double target_w, int shift
   double start_speed = _current_w[wheel_idx];
 
   for (; gear_idx < 5;){
-    shift_speed = MIN_ANG_VELOCITY[gear_idx];
+    shift_speed = (target_w > 0)? MIN_ANG_VELOCITY[gear_idx] : -MIN_ANG_VELOCITY[gear_idx];
     if(DEBUG){
       printf("deceleration : gear_idx = %i\n", gear_idx);
       printf("deceleration : gear_mode = %i\n", gear_mode);
@@ -289,17 +309,21 @@ void WheelController::findDeceleration(int wheel_idx, double target_w, int shift
     }
 
     // needs to shift down. first decelerate to start speed (2000us) 
-    shift_time +=  ((abs(start_speed) - shift_speed) / ANGULAR_ACCELERATION) + 3000;
+    shift_time +=  ((abs(start_speed) - abs(shift_speed)) / ANGULAR_ACCELERATION) + 3000;
      
     if( !existsInShiftQueue(shift_time, it) ){
       // add a gear if not exist.
       Gear from(shift_time);
       from._gear_mode[wheel_idx] = gear_mode;
       from._w[wheel_idx] = shift_speed;
+      if(DEBUG)
+        printf("Add : gear(%i, %lf)\n", gear_mode, shift_speed);
         
       Gear to(shift_time);
       to._gear_mode[wheel_idx] = gear_mode * 2;
       to._w[wheel_idx] = shift_speed;
+      if(DEBUG)
+        printf("Add : gear(%i, %lf)\n", gear_mode*2, shift_speed);
 
       _shift_queue.insert(it, from);
       _shift_queue.insert(it, to);
@@ -307,15 +331,20 @@ void WheelController::findDeceleration(int wheel_idx, double target_w, int shift
       // update gear if already exists.
       it->_gear_mode[wheel_idx] = gear_mode;
       it->_w[wheel_idx] = shift_speed;
+      if(DEBUG)
+        printf("Update : gear(%i, %lf)\n", gear_mode, shift_speed);
 
       it++;
       it->_gear_mode[wheel_idx] = gear_mode * 2;
       it->_w[wheel_idx] = shift_speed;
+      if(DEBUG)
+        printf("Update : gear(%i, %lf)\n", gear_mode*2, shift_speed);
     }
     start_speed = shift_speed;
     gear_idx++;
     gear_mode = (1 << gear_idx);
   }
+  return shift_time;
 }
 
 bool WheelController::existsInShiftQueue(int shift_time, list<Gear>::iterator& it)
