@@ -45,7 +45,7 @@ LcdController::LcdController( I2CBusController* i2c_bus_controller,
   
   _cols = lcd_cols;
   _rows = lcd_rows;
-  _backlightval = LCD_NOBACKLIGHT;
+  _backlightval = LCD_BACKLIGHT;
 }
 
 void LcdController::init(){

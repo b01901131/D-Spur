@@ -1,5 +1,6 @@
 #include "I2CBusController.h"
 #include <fcntl.h>          // open(), close()
+#include <unistd.h>         /* UNIX standard function definitions */
 #include <linux/i2c-dev.h>  // i2c_smbus_write_byte()
 #include <stdio.h>          // prinf()
 #include <stdlib.h>         // exit()
@@ -8,7 +9,7 @@
 
 I2CBusController::I2CBusController(char* filename){
   if ((_device_handle = open(filename, O_RDWR)) < 0){
-    perror("Error: Couldn't open device %d\n", _device_handle);
+    printf("Error: Couldn't open device %d\n", _device_handle);
     exit(1);
   }
   _sl_addr = 255;

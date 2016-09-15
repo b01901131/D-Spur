@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 CXXFLAGS = -g -Wall
 
-.PHONY = all
+.PHONY =  cll
 
 # $@ : the left side of the :
 # $^ : the right side of the :
@@ -14,6 +14,16 @@ all: $(OBJS)
 
 #%.o: %.c %.h
 #	$(CXX) $(CXXFLAGS) -c $< -o $@ 
+
+lcd: lcd.cpp LcdController.o I2CBusController.o
+	$(CXX) -o lcd_hello $^
+
+LcdController.o: LcdController.cpp LcdController.h I2CBusController.o
+	$(CXX) $(CXXFLAGS) -c $< -o $@ 
+
+I2CBusController.o: I2CBusController.cpp I2CBusController.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@ 
+
 test_serialAPI.o: test_serialAPI_4timer.cpp WheelController.o
 	$(CXX) $(CXXFLAGS) -c $< -o $@ 
 

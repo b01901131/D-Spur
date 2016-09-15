@@ -1,6 +1,8 @@
 #ifndef I2C_BUS_CONTROLLER_H
 #define I2C_BUS_CONTROLLER_H
 
+#include <inttypes.h>   // uint8_t
+
 class I2CBusController {
   public:
     I2CBusController(char* filename);
