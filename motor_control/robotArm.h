@@ -6,8 +6,8 @@
 // s4: wrist(yaw)
 // s5: gripper
 struct ServoInfo {
-    int min, max, init;   // hardware limits, should be within range
-    float scale;
+    int min, max, init, scale;   // hardware limits, should be within range
+    float param;
 };
 
 class robotArm {
@@ -17,8 +17,8 @@ class robotArm {
     //required before running
     void begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5, int pin_s6);  
     void reset();
-
-    void goTo(int cmd[7]);
+    void shootPos();
+    void goTo(double cmd[6]);
 
     //Travel smoothly from current point to another point
     void gotoPoint(float x, float y, float z);

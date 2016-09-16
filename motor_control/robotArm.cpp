@@ -1,36 +1,30 @@
 #include "robotArm.h"
-#include "kinematics.h"
 #include <VarSpeedServo.h>
 #include "Arduino.h"
+//                    min  init  max  scale
+// s0: shoulder(yaw)  22   92    157  135
+// s1: shoulder(pitch)23   86    158  135 
+// s2: elbow(pitch)   30   94    150  130 
+// s3: elbot(yaw)     25   90    155  130
+// s4: wrist(pitch)   23   87    110  134
+// s5: wrist(yaw)     23   90    155  132
+// s6: gripper        30   25     50  130
 
-// s0: shoulder(yaw)   24 90 156
-// s1: shoulder(pitch) 23 85 153
-// s2: elbow(pitch)    27 93 155
-// s3: elbot(yaw)      25 90 155
-// s4: wrist(pitch)    25 90 110
-// s5: wrist(yaw)      25 90 152
-// s6: gripper         25     50
-//23 -75 -10 -44 -88 29
-
-void setup_servo (ServoInfo& svo, const int n_min, const int n_init, const int n_max)
+void setup_servo (ServoInfo& svo, const int n_min, const int n_init, const int n_max, const int n_scale)
 {
     svo.min = n_min;
     svo.max = n_max;
     svo.init  = n_init;
-    svo.scale = 180. / (n_max - n_min);
+    svo.scale = n_scale;
+    svo.param = 180. / n_scale;
 }
 
-void cmdGo(VarSpeedServo& s, ServoInfo& svo, int cmd, int speed, bool wait){
+void cmdGo(VarSpeedServo& s, ServoInfo& svo, double cmd, int speed, bool wait){
   int max = svo.max;
   int min = svo.min;
-  cmd = svo.init+int(float(cmd)/svo.scale);
-  //cmd += 90;
-  if(cmd > max)
-    cmd = max;
-  else if(cmd < min)
-    cmd = min;
-
-  s.write(cmd, cmd, wait);
+  cmd = svo.init+int(cmd/svo.param);
+  
+  s.write(cmd, 127, wait);
 }
 
 int angle2cmd (const ServoInfo& svo, const float angle, const int curr_cmd)
@@ -40,13 +34,13 @@ int angle2cmd (const ServoInfo& svo, const float angle, const int curr_cmd)
 }
 
 robotArm::robotArm() {
-  setup_servo(s0_info, 22, 92, 157);
-  setup_servo(s1_info, 23, 85, 157);
-  setup_servo(s2_info, 25, 94, 155);
-  setup_servo(s3_info, 25, 90, 155); 
-  setup_servo(s4_info, 23, 87, 157);
-  setup_servo(s5_info, 23, 90, 152); //gripper constraint
-  setup_servo(s6_info, 25, 25,  50);
+  setup_servo(s0_info, 22, 92, 157, 135);
+  setup_servo(s1_info, 23, 86, 158, 137);
+  setup_servo(s2_info, 30, 30, 150, 128);
+  setup_servo(s3_info, 25, 90, 155, 130); 
+  setup_servo(s4_info, 21, 87, 110, 134);
+  setup_servo(s5_info, 23, 90, 155, 134); 
+  setup_servo(s6_info, 25, 25, 50 , 130);
 }
 
 void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4, int pin_s5, int pin_s6) {
@@ -62,29 +56,35 @@ void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4,
 
 void robotArm::reset(){
   delay(1000);
-  // 25 - 90 - 155
   s0.write(92,127,true);
-  // 23 - 85 - 153
-  s1.write(85,127,false);
-  // 27 - 93 - 155
-  s2.write(94,127,false);
-  // 25 - 90 - 155
-  s3.write(90,127,false); 
-  // 25 - 90 - 110 (metal will stuck)
-  s4.write(87,127,false);
-  // 23 - 90 - 152
-  s5.write(90,127,false);  
-  // 25 - 50
-  s6.write(50,127,false); 
+  s1.write(86,127,true);
+  s3.write(90,127,true); 
+  s2.write(30,127,true);
+  s4.write(87,127,true);
+  s5.write(90,127,true);  
+  s6.write(70,127,false); 
 }
 
-void robotArm::goTo(int cmd[7]){
-  cmdGo(s0, s0_info, cmd[0], 127, true); // cmd[0]+90, 127, true);
-  cmdGo(s1, s1_info, -cmd[1], 127, true); //-cmd[1]+88, 127, true);
-  cmdGo(s2, s2_info, cmd[2], 127, true); // cmd[2]+93, 127, true);
-  cmdGo(s3, s3_info, cmd[3], 127, true); // cmd[3]+90, 127, true);
-  cmdGo(s4, s4_info, cmd[4], 127, true); // cmd[4]+90, 127, true);
-  cmdGo(s5, s5_info, cmd[5], 127, true); // cmd[5]+90, 127, true);
+void robotArm::shootPos(){
+  delay(1000);
+  s0.write(85,127,true);
+  s1.write(18,127,true);
+  s3.write(90,127,true); 
+  s2.write(160,127,true);
+  s4.write(70,127,true);
+  s5.write(90,127,true);  
+  s6.write(70,127,false); 
+}
+
+void robotArm::goTo(double cmd[6]){
+  cmdGo(s0, s0_info, cmd[0], 60, false); // cmd[0]+90, 127, true);
+  cmdGo(s3, s3_info, cmd[3], 60, false); // cmd[3]+90, 127, true);
+  cmdGo(s5, s5_info, cmd[5], 60, true); // cmd[5]+90, 127, true);
+  
+  cmdGo(s4, s4_info, cmd[4], 60, false); // cmd[4]+90, 127, true);
+  cmdGo(s2, s2_info, -cmd[2], 60, false);
+  cmdGo(s1, s1_info, -cmd[1],60, true); //-cmd[1]+88, 127, true);
+  
 }
 
 //Travel smoothly from current point to another point
@@ -125,21 +125,21 @@ void robotArm::goTo(int cmd[7]){
 //}
 
 //Check to see if possible
-bool robotArm::isReachable(float x, float y, float z) {
-  float cmd_0, cmd_1, cmd_2, cmd_3, cmd_4;
-  return (solve(x, y, z, cmd_0, cmd_1, cmd_2, cmd_3, cmd_4)); 
-}
+//bool robotArm::isReachable(float x, float y, float z) {
+//  float cmd_0, cmd_1, cmd_2, cmd_3, cmd_4;
+//  return (solve(x, y, z, cmd_0, cmd_1, cmd_2, cmd_3, cmd_4)); 
+//}
 
 //Grab something
 void robotArm::openGripper() {
-  s6.write(25, 90, true);
-  //delay(300);
+  s6.write(30, 90, false);
+  delay(300);
 }
 
 //Let go of something
 void robotArm::closeGripper() {
-  s6.write(50, 90, true);
-  //delay(300);
+  s6.write(70, 90, false);
+  delay(300);
 }
 
 //Current x, y and z
