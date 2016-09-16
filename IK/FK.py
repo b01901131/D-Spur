@@ -5,7 +5,7 @@ import time
 
 
 th_zero = [0, 90, -90, 0, 180, -180]
-L  = [12.0, 105.0, 28.0, 110.0, 28.0, 150.0]
+L  = [10.0, 105.0, -28.0, 110.0, -20.0, 28.0, 150.0]
 
 #th = [-10, -27, 47, 63, -20, 5]
 #th = [0,-20,0,30,0,90]
@@ -54,18 +54,18 @@ def FK(th):
 			[0.0,           0.0,            0.0,                 1.0]
 		 ]
 
-	T4 = [  [np.cos(local_th[4]), 0.0,  np.sin(local_th[4]),  L[4]*np.cos(local_th[4])],
-			[np.sin(local_th[4]), 0.0, -np.cos(local_th[4]),  L[4]*np.sin(local_th[4])],
-			[0.0,           1.0,            0.0,                 0.0],
+	T4 = [  [np.cos(local_th[4]), 0.0,  np.sin(local_th[4]),  L[5]*np.cos(local_th[4])],
+			[np.sin(local_th[4]), 0.0, -np.cos(local_th[4]),  L[5]*np.sin(local_th[4])],
+			[0.0,           1.0,            0.0,                L[4]],
 			[0.0,           0.0,            0.0,                 1.0]
 		 ]
 
 	T5 = [  [np.cos(local_th[5]), -np.sin(local_th[5]),  0.0,  				 0.0],
 			[np.sin(local_th[5]),  np.cos(local_th[5]),  0.0,  				 0.0],
-			[0.0,           0.0,             1.0,               L[5]],
+			[0.0,           0.0,             1.0,               L[6]],
 			[0.0,           0.0,             0.0,                1.0]
 		 ]
-	Tb = [  [    			1.0,           0.0,             0.0,  				-10.0],
+	Tb = [  [    			1.0,           0.0,             0.0,  				30.0],
 			[    			0.0,           1.0,             0.0,  				  0.0],
 			[    			0.0,           0.0,             1.0,  				 95.0],
 			[               0.0,           0.0,             0.0,                  1.0]
@@ -89,14 +89,14 @@ def rad_to_deg(rad):
 def deg_to_rad(deg):
 	return deg/180.0*np.pi
 
-def IK(curr_th, dest):
+def IK(curr_th, dest, time_span):
 	time_st = time.time()
 	curr = FK(curr_th)
 	d = dist(dest,curr)
 	mini = d
 	th_mini = curr_th
 	#print curr
-	while d > 0.1 and time.time() - time_st < 3:
+	while d > 0.1 and time.time() - time_st < time_span:
 		d_x = dest - curr
 	
 		d_x = np.divide(d_x,dist(d_x))
@@ -108,8 +108,8 @@ def IK(curr_th, dest):
 		for i in range(len(curr_th)):
 			if curr_th[i]>90 :
 				curr_th[i] = 90
-			if curr_th[i]<-90:
-				curr_th[i] = -90
+			if curr_th[i]<-180:
+				curr_th[i] = -180
 
 		'''
 		for i in range(6):
@@ -127,17 +127,16 @@ def IK(curr_th, dest):
 			mini = d
 			th_mini = list(curr_th)
 			#print th_mini
-		print d
+		#print d
 		#print "////////////////////////////"
 	
 
 	for i in range(6):
-		th_mini[i] = round(th_mini[i],0)
-		while not th_mini[i] in range(-180,180):
-			th_mini[i] -= np.sign(th_mini[i])*360
+		th_mini[i] = round(th_mini[i],2)
 	curr = FK(th_mini)
 	print th_mini#,dist(dest,curr)
 	print curr
+	print dest
 	print dist(dest,curr)
 	return th_mini
 
