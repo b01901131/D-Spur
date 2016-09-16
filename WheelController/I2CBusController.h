@@ -9,6 +9,7 @@ class I2CBusController {
     ~I2CBusController();
 
     void sendByte(uint8_t sl_addr, uint8_t data);
+    void sendBytes(uint8_t sl_addr, uint8_t* data, int len);
 
   private:
     void setSlave(uint8_t sl_addr);

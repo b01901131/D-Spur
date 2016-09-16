@@ -1,7 +1,10 @@
 #include "WheelController.h"
 #include <cmath>
 #include <signal.h>
+#include <stdio.h>
 #include <unistd.h>
+
+//using namespace std;
 
 WheelController* WheelController::_me;
 
@@ -123,7 +126,11 @@ void WheelController::stopMotion()
   wheel_cmd[16] = 0x7f;
   wheel_cmd[17] = 0x7f;
 
-  _serial_port_controller->sendByte(wheel_cmd, CMD_LEN);
+  if(_serial_port_controller != NULL)
+    _serial_port_controller->sendBytes(wheel_cmd, CMD_LEN);
+
+  if(_i2c_bus_controller != NULL)
+    _i2c_bus_controller->sendBytes(_sl_addr, wheel_cmd, CMD_LEN);
 
   _current_gear_mode[0] = 16;
   _current_gear_mode[1] = 16;
@@ -443,6 +450,10 @@ void WheelController::sendCmd(Gear& g)
   if(DEBUG)
     printf("sendCmd\n\n");
 
-  _serial_port_controller->sendByte(g._wheel_cmd, CMD_LEN);
+  if(_serial_port_controller != NULL)
+    _serial_port_controller->sendBytes(g._wheel_cmd, CMD_LEN);
+
+  if(_i2c_bus_controller != NULL)
+    _i2c_bus_controller->sendBytes(_sl_addr, g._wheel_cmd, CMD_LEN);
 }
 

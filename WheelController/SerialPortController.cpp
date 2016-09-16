@@ -62,7 +62,7 @@ SerialPortController::~SerialPortController(){
 }
 
 // public functions
-void SerialPortController::sendByte(uint8_t* data, int len){
+void SerialPortController::sendBytes(uint8_t* data, int len){
   int n = write(_device_handle, data, len);
   if (n != len) {
     printf("Did not send all requested bytes.(%i/%i)\n", n, len);

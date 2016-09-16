@@ -7,9 +7,12 @@ CXXFLAGS = -g -Wall
 # $@ : the left side of the :
 # $^ : the right side of the :
 # $< : first item in the dependencies list
-OBJS = test_serialAPI.o WheelController.o Gear.o SerialPortController.o
+OBJS = WheelController.o Gear.o SerialPortController.o
 
-all: $(OBJS)
+all: test_i2c_API.cpp LcdController.o I2CBusController.o $(OBJS)
+	$(CXX) -o i2cAPI $^
+
+serial: test_serialAPI.o $(OBJS)
 	$(CXX) -o serialAPI $^
 
 #%.o: %.c %.h

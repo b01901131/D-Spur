@@ -10,7 +10,7 @@ class SerialPortController {
     ~SerialPortController();
 
     //void sendByte(uint8_t data);
-    void sendByte(uint8_t* data, int len);
+    void sendBytes(uint8_t* data, int len);
 
   private:
 
