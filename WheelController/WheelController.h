@@ -46,9 +46,7 @@ class WheelController {
     void shiftGear();
     void sendCmd(Gear& g);
     
-    //const double _MAX_ANG_VELOCITY[5] = {PI/180*3600, PI/180*1800, PI/180*900, PI/180*450, PI/180*225};
-    //const double _MIN_ANG_VELOCITY[5] = {PI/180*1800, PI/180*900,  PI/180*450, PI/180*225, PI/180*112.5*0};
-
+    bool _done[4];
     int _current_shift_time;
     int _current_gear_mode[4];
     double _current_w[4];
