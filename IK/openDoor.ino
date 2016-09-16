@@ -11,7 +11,7 @@ int index = 0;
 int row = 0;
 int col = 0;
 int num_of_cmd = 9;
-int** servo_cmd = new int*[num_of_cmd];
+double** servo_cmd = new double*[num_of_cmd];
 
 void calcIK(){
   if(Serial.available() > 0){
@@ -31,7 +31,7 @@ void calcIK(){
       if(inChar==' '){
         row = index/6;
         col = index%6;
-        servo_cmd[row][col] = cmd.toInt();        
+        servo_cmd[row][col] = atof(cmd.c_str());        
         //Serial.println(row);
         //Serial.println(col);
         //Serial.println(servo_cmd[row][col]);
@@ -49,7 +49,7 @@ void setup(){
   Serial.begin(9600);
   arm.begin(2,3,4,5,6,7,8);
   for(int i = 0; i < num_of_cmd; ++i)
-    servo_cmd[i] = new int[6];
+    servo_cmd[i] = new double[6];
 }
 
 void reset(){
@@ -73,7 +73,7 @@ void loop(){
     
     for(int i=1; i<num_of_cmd; i++){
       Serial.println(i);
-      arm.goTo(servo_cmd[i]);
+      //arm.goTo(servo_cmd[i]);
       delay(100);
     }
 
