@@ -22,6 +22,11 @@ WheelController::WheelController( I2CBusController* i2c_bus_controller,
   _current_w[1] = 0;
   _current_w[2] = 0;
   _current_w[3] = 0;
+  _done[0] = false;
+  _done[1] = false;
+  _done[2] = false;
+  _done[3] = false;
+  
 
   if(DEBUG)
     printf("Done initializing WheelController (i2c)\n");
@@ -42,6 +47,10 @@ WheelController::WheelController(SerialPortController* serial_port_controller)
   _current_w[1] = 0;
   _current_w[2] = 0;
   _current_w[3] = 0;
+  _done[0] = false;
+  _done[1] = false;
+  _done[2] = false;
+  _done[3] = false;
 
   if(DEBUG)
     printf("Done initializing WheelController (serial)\n");
@@ -124,6 +133,10 @@ void WheelController::stopMotion()
   _current_w[1] = 0;
   _current_w[2] = 0;
   _current_w[3] = 0;
+  _done[0] = false;
+  _done[1] = false;
+  _done[2] = false;
+  _done[3] = false;
 }
 
 // private functions
@@ -144,6 +157,21 @@ void WheelController::findGears(double target_w[4])
       } else {
         findDeceleration(i, target_w[i], 0);
       }
+    }
+  }
+
+  // check if last gear not target.
+  bool done[4] = {false, false, false, false};
+  for(list<Gear>::iterator it = _shift_queue.begin(); it != _shift_queue.end(); it++){
+    // find which wheel has reached target speed
+    for(i = 0; i < 4 ; i++){
+      if(it->_w[i] == target_w[i] && !done[i])
+        done[i] = true;
+    }
+
+    for(i = 0; i < 4 ; i++){
+      if(done[i] && it->_w[i] != target_w[i])
+        it->_w[i] = target_w[i];
     }
   }
 }
@@ -200,7 +228,9 @@ int WheelController::findAcceleration(int wheel_idx, double target_w, int shift_
     
     if (abs(target_w) <= MAX_ANG_VELOCITY[gear_idx]){
       // no need to shift up.
-      shift_time +=  ((abs(target_w) - abs(start_speed)) / ANGULAR_ACCELERATION) + 3000;
+      //shift_time +=  ((abs(target_w) - abs(start_speed)) / ANGULAR_ACCELERATION) + 3000;
+      shift_time += 3000;
+      
       if( !existsInShiftQueue(shift_time, it) ){
         // add a gear if not exist.
         Gear to(shift_time);
@@ -223,7 +253,8 @@ int WheelController::findAcceleration(int wheel_idx, double target_w, int shift_
       break;
     }
     // needs to shift up. first accelerate to shift speed (1000us) 
-    shift_time +=  ((abs(shift_speed) - abs(start_speed)) / ANGULAR_ACCELERATION) + 3000;
+    //shift_time +=  ((abs(shift_speed) - abs(start_speed)) / ANGULAR_ACCELERATION) + 3000;
+    shift_time += 3000;
      
     if( !existsInShiftQueue(shift_time, it) ){
       // add a gear if not exist.
@@ -258,6 +289,7 @@ int WheelController::findAcceleration(int wheel_idx, double target_w, int shift_
     gear_idx--;
     gear_mode = (1 << gear_idx);
   }
+
   return shift_time;
 }
     
@@ -286,7 +318,8 @@ int WheelController::findDeceleration(int wheel_idx, double target_w, int shift_
     
     if (abs(target_w) >= MIN_ANG_VELOCITY[gear_idx]){
       // no need to shift down.
-      shift_time +=  ((abs(start_speed) - abs(target_w)) / ANGULAR_ACCELERATION) + 3000;
+      //shift_time +=  ((abs(start_speed) - abs(target_w)) / ANGULAR_ACCELERATION) + 3000;
+      shift_time += 3000;
       if( !existsInShiftQueue(shift_time, it) ){
         // add a gear if not exist.
         Gear to(shift_time);
@@ -309,7 +342,8 @@ int WheelController::findDeceleration(int wheel_idx, double target_w, int shift_
     }
 
     // needs to shift down. first decelerate to start speed (2000us) 
-    shift_time +=  ((abs(start_speed) - abs(shift_speed)) / ANGULAR_ACCELERATION) + 3000;
+    //shift_time +=  ((abs(start_speed) - abs(shift_speed)) / ANGULAR_ACCELERATION) + 3000;
+    shift_time += 3000;
      
     if( !existsInShiftQueue(shift_time, it) ){
       // add a gear if not exist.
@@ -409,6 +443,6 @@ void WheelController::sendCmd(Gear& g)
   if(DEBUG)
     printf("sendCmd\n\n");
 
-  //_serial_port_controller->sendByte(g._wheel_cmd, CMD_LEN);
+  _serial_port_controller->sendByte(g._wheel_cmd, CMD_LEN);
 }
 
