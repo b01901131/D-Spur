@@ -118,11 +118,16 @@ void Gear::genCmd()
   wait_us[3] = (wait_us[3] > 0)? wait_us[3]: -wait_us[3];
 
   for (int i = 0; i< 4; i++){
+    /*
+    Arduino Mega int is 16 bit.
     _wheel_cmd[0+4*i] = (wait_us[i] >> 24) & 0xff;
     _wheel_cmd[1+4*i] = (wait_us[i] >> 16) & 0xff;
     _wheel_cmd[2+4*i] = (wait_us[i] >>  8) & 0xff;
     _wheel_cmd[3+4*i] = (wait_us[i] & 0xff);
+    */
+    _wheel_cmd[0+2*i] = (wait_us[i] >> 8) & 0xff;
+    _wheel_cmd[1+2*i] = (wait_us[i] & 0xff);
   }
-  _wheel_cmd[16] = dir_upper;
-  _wheel_cmd[17] = dir_lower;
+  _wheel_cmd[8] = dir_upper;
+  _wheel_cmd[9] = dir_lower;
 }

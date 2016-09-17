@@ -114,17 +114,16 @@ void setAngVelocity(double w0);
 
 void WheelController::stopMotion()
 {
-  //clearWheelCmd();
   uint8_t wheel_cmd[CMD_LEN];
-  int stop = -1;
+  short stop = -1;
   for(int i = 0; i < 4; i++){
-    wheel_cmd[0+4*i] = (stop >> 24) & 0xff;
-    wheel_cmd[1+4*i] = (stop >> 16) & 0xff;
-    wheel_cmd[2+4*i] = (stop >> 8) & 0xff;
-    wheel_cmd[3+4*i] = (stop & 0xff);
+    //wheel_cmd[0+4*i] = (stop >> 24) & 0xff;
+    //wheel_cmd[1+4*i] = (stop >> 16) & 0xff;
+    wheel_cmd[0+2*i] = (stop >> 8) & 0xff;
+    wheel_cmd[1+2*i] = (stop & 0xff);
   }
-  wheel_cmd[16] = 0x7f;
-  wheel_cmd[17] = 0x7f;
+  wheel_cmd[8] = 0x7f;
+  wheel_cmd[9] = 0x7f;
 
   if(_serial_port_controller != NULL)
     _serial_port_controller->sendBytes(wheel_cmd, CMD_LEN);
@@ -168,6 +167,7 @@ void WheelController::findGears(double target_w[4])
   }
 
   // check if last gear not target.
+  int new_shift_time = 3000;
   bool done[4] = {false, false, false, false};
   for(list<Gear>::iterator it = _shift_queue.begin(); it != _shift_queue.end(); it++){
     // find which wheel has reached target speed
@@ -180,6 +180,9 @@ void WheelController::findGears(double target_w[4])
       if(done[i] && it->_w[i] != target_w[i])
         it->_w[i] = target_w[i];
     }
+    
+    it->_shift_time_us = new_shift_time;
+    new_shift_time += 3000;
   }
 }
 

@@ -15,7 +15,7 @@ class Gear {
     int _shift_time_us;
     int _gear_mode[4];
     double _w[4];
-    uint8_t _wheel_cmd[18];
+    uint8_t _wheel_cmd[CMD_LEN];
 };
 
 #endif

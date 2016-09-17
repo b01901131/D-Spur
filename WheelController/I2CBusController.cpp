@@ -31,8 +31,13 @@ void I2CBusController::sendBytes(uint8_t sl_addr, uint8_t* data, int len){
   if(_sl_addr != sl_addr)
     setSlave(sl_addr);
 
-  for(int i = 0; i < len; i++)
+  for(int i = 0; i < len ; i++)
     i2c_smbus_write_byte(_device_handle, *(data+i));
+  //int n = write(_device_handle, data, len);
+  //if (n != len) {
+  //  printf("Did not send all requested bytes.(%i/%i)\n", n, len);
+  //  exit(1);
+  //}
 }
 // private functions
 void I2CBusController::setSlave(uint8_t sl_addr){

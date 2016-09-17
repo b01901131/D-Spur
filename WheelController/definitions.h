@@ -10,7 +10,8 @@
 #define SIXTEENTH 0x7
 
 #define ANGULAR_ACCELERATION 2
-#define CMD_LEN 18
+//#define CMD_LEN 18
+#define CMD_LEN 10
 
 #define DEBUG true
 
