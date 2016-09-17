@@ -25,11 +25,12 @@ WheelController::WheelController( I2CBusController* i2c_bus_controller,
   _current_w[1] = 0;
   _current_w[2] = 0;
   _current_w[3] = 0;
+/*
   _done[0] = false;
   _done[1] = false;
   _done[2] = false;
   _done[3] = false;
-  
+*/  
 
   if(DEBUG)
     printf("Done initializing WheelController (i2c)\n");
@@ -50,11 +51,12 @@ WheelController::WheelController(SerialPortController* serial_port_controller)
   _current_w[1] = 0;
   _current_w[2] = 0;
   _current_w[3] = 0;
+/*  
   _done[0] = false;
   _done[1] = false;
   _done[2] = false;
   _done[3] = false;
-
+*/
   if(DEBUG)
     printf("Done initializing WheelController (serial)\n");
 }
@@ -128,8 +130,8 @@ void WheelController::stopMotion()
   if(_serial_port_controller != NULL)
     _serial_port_controller->sendBytes(wheel_cmd, CMD_LEN);
 
-  if(_i2c_bus_controller != NULL)
-    _i2c_bus_controller->sendBytes(_sl_addr, wheel_cmd, CMD_LEN);
+  //if(_i2c_bus_controller != NULL)
+  //  _i2c_bus_controller->sendBytes(_sl_addr, wheel_cmd, CMD_LEN);
 
   _current_gear_mode[0] = 16;
   _current_gear_mode[1] = 16;
@@ -139,16 +141,19 @@ void WheelController::stopMotion()
   _current_w[1] = 0;
   _current_w[2] = 0;
   _current_w[3] = 0;
+/*
   _done[0] = false;
   _done[1] = false;
   _done[2] = false;
   _done[3] = false;
+*/
 }
 
 // private functions
 void WheelController::findGears(double target_w[4])
 {
   int i;
+  bool done[4] = {false, false, false, false};
   // for each wheel
   for(i = 0; i < 4; i++){
     if(_current_w[i] * target_w[i] < 0){
@@ -159,7 +164,7 @@ void WheelController::findGears(double target_w[4])
         //printf("findGears() : wheel %i acceleration.\n", i);
         findAcceleration(i, target_w[i], 0);
       } else if(target_w[i] == _current_w[i]){
-        continue;
+        done[i] = true;
       } else {
         findDeceleration(i, target_w[i], 0);
       }
@@ -168,7 +173,6 @@ void WheelController::findGears(double target_w[4])
 
   // check if last gear not target.
   int new_shift_time = 3000;
-  bool done[4] = {false, false, false, false};
   for(list<Gear>::iterator it = _shift_queue.begin(); it != _shift_queue.end(); it++){
     // find which wheel has reached target speed
     for(i = 0; i < 4 ; i++){
@@ -456,7 +460,7 @@ void WheelController::sendCmd(Gear& g)
   if(_serial_port_controller != NULL)
     _serial_port_controller->sendBytes(g._wheel_cmd, CMD_LEN);
 
-  if(_i2c_bus_controller != NULL)
-    _i2c_bus_controller->sendBytes(_sl_addr, g._wheel_cmd, CMD_LEN);
+  //if(_i2c_bus_controller != NULL)
+  //  _i2c_bus_controller->sendBytes(_sl_addr, g._wheel_cmd, CMD_LEN);
 }
 
