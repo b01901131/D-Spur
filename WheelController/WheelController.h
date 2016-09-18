@@ -46,7 +46,7 @@ class WheelController {
     void shiftGear();
     void sendCmd(Gear& g);
     
-    bool _done[4];
+    //bool _done[4];
     int _current_shift_time;
     int _current_gear_mode[4];
     double _current_w[4];
