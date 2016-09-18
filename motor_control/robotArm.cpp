@@ -51,29 +51,31 @@ void robotArm::begin(int pin_s0, int pin_s1, int pin_s2, int pin_s3, int pin_s4,
   s4.attach(pin_s4);
   s5.attach(pin_s5);
   s6.attach(pin_s6);
-  reset();
+  shootPos();
+  //cameraMode();
+  //reset();
 }
 
 void robotArm::reset(){
   delay(1000);
-  s0.write(92,127,true);
-  s1.write(86,127,true);
-  s3.write(90,127,true); 
-  s2.write(30,127,true);
-  s4.write(87,127,true);
-  s5.write(90,127,true);  
-  s6.write(70,127,false); 
+  s0.write(92,255,true);
+  s1.write(86,255,true);
+  s3.write(90,255,true); 
+  s2.write(30,255,true);
+  s4.write(87,255,true);
+  s5.write(90,255,true);  
+  s6.write(70,255,false); 
 }
 
 void robotArm::shootPos(){
   delay(1000);
-  s0.write(85,127,true);
-  s1.write(18,127,true);
-  s3.write(90,127,true); 
-  s2.write(160,127,true);
-  s4.write(70,127,true);
-  s5.write(90,127,true);  
-  s6.write(70,127,false); 
+  s0.write(85,60,true);
+  s1.write(23,60,true);
+  s3.write(90,60,true); 
+  s2.write(160,60,true);
+  s4.write(70,60,true);
+  s5.write(90,60,true);  
+  s6.write(70,60,false); 
 }
 
 void robotArm::goTo(double cmd[6]){
@@ -85,6 +87,16 @@ void robotArm::goTo(double cmd[6]){
   cmdGo(s2, s2_info, -cmd[2], 60, false);
   cmdGo(s1, s1_info, -cmd[1],60, true); //-cmd[1]+88, 127, true);
   
+}
+void robotArm::cameraMode(){
+  delay(1000);
+  s0.write(92,60,true);
+  s1.write(86-10/(180*137),60,true);
+  s3.write(90,60,true); 
+  s2.write(66,60,true);
+  s4.write(0,60,true);
+  s5.write(90,60,true);  
+  s6.write(70,60,false); 
 }
 
 //Travel smoothly from current point to another point
