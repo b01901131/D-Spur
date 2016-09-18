@@ -31,8 +31,21 @@ void I2CBusController::sendBytes(uint8_t sl_addr, uint8_t* data, int len){
   if(_sl_addr != sl_addr)
     setSlave(sl_addr);
 
-  for(int i = 0; i < len ; i++)
+  for(int i = 0; i < len ; i++){
     i2c_smbus_write_byte(_device_handle, *(data+i));
+    //usleep(50);
+    uint8_t ack = i2c_smbus_read_byte(_device_handle);
+    printf("i2c ack:%i\n", ack);
+    //if(ack != i+1 && ack != 255){
+      //i = ack;
+    //}
+  }
+  //uint8_t ack = i2c_smbus_read_byte(_device_handle);
+  //printf("i2c ack:%i\n", ack);
+  printf("i2c bus send all requested bytes\n");
+  
+  //i2c_smbus_write_block_data(_device_handle, 0x0, len, data);
+
   //int n = write(_device_handle, data, len);
   //if (n != len) {
   //  printf("Did not send all requested bytes.(%i/%i)\n", n, len);
