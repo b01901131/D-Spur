@@ -36,6 +36,7 @@ int main( int argc, char** argv )
     }
     
     
+    
     //imshow("morph",img);
     cvtColor( img, img_grey, CV_BGR2GRAY );
     threshold(img_grey, img_grey, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
@@ -51,19 +52,18 @@ int main( int argc, char** argv )
     //dilate(img_grey, img_grey, getStructuringElement(MORPH_RECT,Size(3,3)) );
     //erode(img_grey, img_grey, getStructuringElement(MORPH_RECT,Size(3,3)));
     
-	//imshow("morph grey2",img_grey);    
-	//waitKey(0);
+	imshow("morph grey2",img_grey);    
+	waitKey(0);
 
 	//threshold(img_grey, img_grey2, 1, 255, CV_THRESH_BINARY);
-    Canny(img_grey, img_grey2, 100, 200, 3);
-    //imshow("grey2",img_grey2);
+    
 
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
     RNG rng(12345);
     findContours(img_grey2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
     Mat drawing = Mat::zeros( img_grey.size(), CV_8UC3 );
-
+    
     int idx = -1;
     int max = 0;
     vector<Point> approx;
@@ -157,7 +157,7 @@ int main( int argc, char** argv )
 
     	
     	imshow("crop", cropped);
-    	waitKey(0);    		
+    	waitKey(0);	
     }
 
 
