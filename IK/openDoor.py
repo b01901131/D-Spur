@@ -33,6 +33,9 @@ while 1 :
         exit()
     else:
         #print "Wrote : %s" % (cmd)
+        if cmd == 'r' or cmd == 'c':
+            ser.write(cmd)
+            continue
         pose = map(float, cmd.split())
         if len(pose) != 9:
             usage()
@@ -59,6 +62,7 @@ while 1 :
         cmd_input = "%i" % len(target_cmd)
         for i in range(len(target_cmd)):
             cmd_input += " ".join(target_cmd[i])
+            #cmd_input += " 1"
             cmd_input += " "
             print target_th[i],target_cmd[i]
             #print "cmd %i " % i, target_th[i], target_cmd[i]
